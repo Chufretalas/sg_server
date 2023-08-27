@@ -1,10 +1,10 @@
 <script lang="ts">
     import type { PageData } from "./$types";
     import { goto } from "$app/navigation";
-    import { page } from '$app/stores';
-    
+    import { page, navigating } from "$app/stores";
+
     export let data: PageData;
-    let selectedVersion = $page.url.searchParams.get('v')!
+    let selectedVersion = $page.url.searchParams.get("v")!;
 </script>
 
 <svelte:head>
@@ -23,9 +23,9 @@
                     >
                         <button
                             on:click={() => {
-                                selectedVersion = version
-                                goto(`/?v=${version}`)
-                                }}
+                                selectedVersion = version;
+                                goto(`/?v=${version}`);
+                            }}
                             class="select-button"
                             >{version}
                         </button>
@@ -35,15 +35,19 @@
         </div>
         <div class="leaderboard">
             <h1>Version: {selectedVersion}</h1>
-            <ol class="lb-list">
-                {#each data.scores as score, index}
-                    <li class="lb-item">
-                        <span class="position">{index + 1}º</span>
-                        <spa class="name">{score.name}</spa>
-                        <span class="score">{score.score}</span>
-                    </li>
-                {/each}
-            </ol>
+            {#if $navigating}
+                <span>loading...</span>
+            {:else}
+                <ol class="lb-list">
+                    {#each data.scores as score, index}
+                        <li class="lb-item">
+                            <span class="position">{index + 1}º</span>
+                            <spa class="name">{score.name}</spa>
+                            <span class="score">{score.score}</span>
+                        </li>
+                    {/each}
+                </ol>
+            {/if}
         </div>
     </main>
 {:else}
