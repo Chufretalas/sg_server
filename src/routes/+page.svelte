@@ -1,41 +1,31 @@
 <script lang="ts">
-    import { derived, writable } from "svelte/store";
     import type { PageData } from "./$types";
-
+    import { goto } from "$app/navigation";
+    import { page } from '$app/stores';
+    
     export let data: PageData;
-
-    let selectedVersion = writable(data.versions?.at(0));
-
-    let scores = derived(selectedVersion, ($selectedVersion) => {
-        const names: string[] = [];
-        return data.allScores
-            .filter((e) => e.version === $selectedVersion)
-            .filter((e) => {
-                if (!names.includes(e.name)) {
-                    names.push(e.name);
-                    return true;
-                }
-                return false;
-            });
-    });
+    let selectedVersion = $page.url.searchParams.get('v')!
 </script>
 
 <svelte:head>
     <title>SG Leaderboard 👻</title>
 </svelte:head>
 
-{#if data.allScores.length !== 0 && scores && data.versions}
+{#if data.scores && data.versions}
     <main>
         <div class="version-select">
             <ol>
                 {#each data.versions as version}
                     <li
-                        class={version === $selectedVersion
+                        class={version === selectedVersion
                             ? "selected-version"
                             : ""}
                     >
                         <button
-                            on:click={() => ($selectedVersion = version)}
+                            on:click={() => {
+                                selectedVersion = version
+                                goto(`/?v=${version}`)
+                                }}
                             class="select-button"
                             >{version}
                         </button>
@@ -44,9 +34,9 @@
             </ol>
         </div>
         <div class="leaderboard">
-            <h1>Version: {$selectedVersion}</h1>
+            <h1>Version: {selectedVersion}</h1>
             <ol class="lb-list">
-                {#each $scores as score, index}
+                {#each data.scores as score, index}
                     <li class="lb-item">
                         <span class="position">{index + 1}º</span>
                         <spa class="name">{score.name}</spa>
@@ -144,9 +134,6 @@
 
     .position {
         font-weight: bold;
-    }
-
-    .name {
     }
 
     .score {
