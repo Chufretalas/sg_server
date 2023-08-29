@@ -26,6 +26,7 @@ export const load = (async ({ url }) => {
                 select: {
                     version: true
                 },
+                orderBy: { version: "desc" },
                 distinct: ["version"]
             })
             if (scResponse && vResponse) {
